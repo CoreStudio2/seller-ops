@@ -5,12 +5,13 @@ import { LiveStatusBar } from '@/components/metrics/LiveStatusBar';
 import { ThreatFeed } from '@/components/feed/ThreatFeed';
 import { AttributionBriefPanel } from '@/components/feed/AttributionBrief';
 import { BeastModePanel } from '@/components/simulation/BeastModePanel';
+import { SmartRecommendationsPanel } from '@/components/recommendations/SmartRecommendationsPanel';
 import { useRealtimeDashboard } from '@/lib/hooks';
 
-type ViewMode = 'attribution' | 'beast';
+type ViewMode = 'attribution' | 'beast' | 'recommendations';
 
 export default function WarRoom() {
-  const [viewMode, setViewMode] = useState<ViewMode>('attribution');
+  const [viewMode, setViewMode] = useState<ViewMode>('recommendations');
 
   // Enable real-time polling
   useRealtimeDashboard();
@@ -29,6 +30,19 @@ export default function WarRoom() {
         <main className="flex-1 flex flex-col">
           {/* View Toggle */}
           <div className="flex border-b border-border-default">
+            <button
+              onClick={() => setViewMode('recommendations')}
+              className={`
+                flex-1 py-3 px-4 font-mono text-sm uppercase tracking-wider transition-colors
+                ${viewMode === 'recommendations'
+                  ? 'bg-surface-elevated text-signal-cyan border-b-2 border-signal-cyan'
+                  : 'text-text-secondary hover:text-text-primary'
+                }
+              `}
+            >
+              <span className="mr-2">🤖</span>
+              Smart Recommendations
+            </button>
             <button
               onClick={() => setViewMode('attribution')}
               className={`
@@ -58,7 +72,9 @@ export default function WarRoom() {
           </div>
 
           {/* Dynamic Content */}
-          {viewMode === 'attribution' ? (
+          {viewMode === 'recommendations' ? (
+            <SmartRecommendationsPanel />
+          ) : viewMode === 'attribution' ? (
             <AttributionBriefPanel />
           ) : (
             <BeastModePanel />
@@ -76,10 +92,10 @@ export default function WarRoom() {
         </div>
         <div className="flex items-center gap-4">
           <span className="font-mono text-xs text-text-tertiary">
-            Powered by Gemini AI
+            Powered by TensorFlow.js + Gemini AI
           </span>
           <span className="font-mono text-xs text-text-tertiary">
-            v0.1.0-beta
+            v0.2.0-beta
           </span>
         </div>
       </footer>
