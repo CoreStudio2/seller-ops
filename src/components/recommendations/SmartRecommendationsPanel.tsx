@@ -96,7 +96,11 @@ export function SmartRecommendationsPanel() {
         try {
             const url = refresh ? '/api/recommendations?refresh=true' : '/api/recommendations';
             const response = await fetch(url);
-            if (!response.ok) throw new Error('Failed to fetch catalog');
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                console.error('Catalog fetch error:', response.status, errorData);
+                throw new Error(`Failed to fetch catalog: ${errorData.error || response.statusText}`);
+            }
             const data = await response.json();
             setCatalog(data);
             if (data.products.length > 0) {
@@ -104,6 +108,8 @@ export function SmartRecommendationsPanel() {
             }
         } catch (error) {
             console.error('Failed to load catalog:', error);
+            // Show error to user instead of silent fail
+            alert(`Failed to load product catalog. Please check:\n1. GEMINI_API_KEY is set in .env.local\n2. Dev server is running\n\nError: ${error instanceof Error ? error.message : 'Unknown error'}`);
         } finally {
             setIsLoadingCatalog(false);
         }

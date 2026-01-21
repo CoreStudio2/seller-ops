@@ -23,6 +23,17 @@ const RecommendationRequestSchema = z.object({
 
 export async function POST(request: NextRequest) {
     try {
+        // Check if Gemini API key is set
+        if (!process.env.GEMINI_API_KEY) {
+            return NextResponse.json(
+                { 
+                    error: 'Gemini API key not configured',
+                    details: 'Please set GEMINI_API_KEY in your .env.local file'
+                },
+                { status: 503 }
+            );
+        }
+
         const body = await request.json();
         const params = RecommendationRequestSchema.parse(body);
 
@@ -108,6 +119,18 @@ export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
         const forceRefresh = searchParams.get('refresh') === 'true';
+
+        // Check if Gemini API key is set
+        if (!process.env.GEMINI_API_KEY) {
+            return NextResponse.json(
+                { 
+                    error: 'Gemini API key not configured',
+                    details: 'Please set GEMINI_API_KEY in your .env.local file. Get one from https://ai.google.dev/',
+                    suggestion: 'Add: GEMINI_API_KEY=your_key_here to .env.local'
+                },
+                { status: 503 } // Service Unavailable
+            );
+        }
 
         // Get Gemini-generated catalog
         const catalog = await getCachedCatalog(
