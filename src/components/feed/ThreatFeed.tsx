@@ -88,7 +88,7 @@ function ThreatCard({ threat, isSelected, onClick }: ThreatCardProps) {
 }
 
 // === THREAT FEED ===
-export function ThreatFeed() {
+export function ThreatFeed({ onClose }: { onClose?: () => void }) {
     const threats = useThreats();
     const selectedThreat = useSelectedThreat();
     const selectThreat = useSellerOpsStore((s) => s.selectThreat);
@@ -96,14 +96,26 @@ export function ThreatFeed() {
     const displayThreats = threats; // Use ONLY real threats from store
 
     return (
-        <aside className="w-80 h-full bg-surface-base border-r border-border-default flex flex-col">
+        <aside className="w-full md:w-80 h-full bg-surface-base border-r border-border-default flex flex-col">
             {/* Header */}
             <div className="p-3 border-b border-border-default">
-                <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-signal-red animate-pulse-glow" />
-                    <h2 className="font-mono text-sm font-bold uppercase tracking-wider text-text-primary">
-                        Threat Feed
-                    </h2>
+                <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-signal-red animate-pulse-glow" />
+                        <h2 className="font-mono text-sm font-bold uppercase tracking-wider text-text-primary">
+                            Threat Feed
+                        </h2>
+                    </div>
+                    {/* Close button for mobile */}
+                    {onClose && (
+                        <button
+                            onClick={onClose}
+                            className="md:hidden text-text-secondary hover:text-text-primary text-xl"
+                            aria-label="Close threat feed"
+                        >
+                            ✕
+                        </button>
+                    )}
                 </div>
                 <p className="font-mono text-xs text-text-tertiary mt-1">
                     {displayThreats.length} active • Click to analyze

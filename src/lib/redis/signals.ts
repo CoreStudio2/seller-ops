@@ -159,3 +159,13 @@ export function generateMockSignal(): Signal {
 
     return createSignal(type, value, { previousValue });
 }
+
+// === EXPORT PLACEHOLDERS FOR COMPATIBILITY ===
+// These are now implemented in unified-client.ts
+export function publishSignal(data: any): Promise<void> {
+    throw new Error('Use unified-client.ts instead');
+}
+
+export function publishThreat(data: any): Promise<void> {
+    throw new Error('Use unified-client.ts instead');
+}

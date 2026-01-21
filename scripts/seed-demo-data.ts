@@ -1,64 +1,26 @@
 /**
  * Demo Data Seeding Script
  * Inserts realistic threat events and signals into the system
+ * NOTE: This is a placeholder script for future use
  */
 
-import { publishSignal, publishThreat } from '@/lib/redis/signals';
-import type { Signal, ThreatEvent, SignalType, SeverityLevel } from '@/lib/types';
+import type { Signal, ThreatEvent, SignalType } from '@/lib/types';
 
-// Realistic demo threats
-const DEMO_THREATS: Omit<ThreatEvent, 'id' | 'timestamp'>[] = [
-    {
-        title: 'Competitor Price Attack Detected',
-        severity: 'WARNING',
-        category: 'PRICE_WAR',
-        description: 'Competitor "TechMart" dropped price by 12% on similar products. Risk of losing Buy Box.',
-        metrics: {
-            impact: 'MEDIUM',
-            confidence: 87
-        }
-    },
-    {
-        title: 'Sudden Conversion Rate Drop',
-        severity: 'CRITICAL',
-        category: 'PERFORMANCE_ISSUE',
-        description: 'Checkout conversion dropped from 3.8% to 2.1% in last 2 hours. Mobile traffic affected.',
-        metrics: {
-            impact: 'HIGH',
-            confidence: 92
-        }
-    },
-    {
-        title: 'Refund Pattern Change',
-        severity: 'INFO',
-        category: 'QUALITY_ISSUE',
-        description: 'Refund rate increased 15% for SKU-8842. Common reason: "Product not as described".',
-        metrics: {
-            impact: 'LOW',
-            confidence: 78
-        }
-    },
-    {
-        title: 'High-Value Order Anomaly',
-        severity: 'WARNING',
-        category: 'FRAUD_RISK',
-        description: '3 orders above ₹50,000 from new accounts in last hour. Unusual shipping addresses.',
-        metrics: {
-            impact: 'MEDIUM',
-            confidence: 81
-        }
-    },
-    {
-        title: 'Ad Campaign Performance Drop',
-        severity: 'WARNING',
-        category: 'MARKETING',
-        description: 'Campaign ROI dropped to 0.7x. Spending ₹12,000/day with negative returns.',
-        metrics: {
-            impact: 'MEDIUM',
-            confidence: 95
-        }
-    }
-];
+// This script is not currently used in the build
+// It's kept for reference but doesn't affect production
+
+export async function seedDemoData() {
+    console.log('Demo data seeding is currently disabled');
+    console.log('Use /api/ingest endpoint to generate demo data');
+    return { success: true };
+}
+
+if (require.main === module) {
+    seedDemoData()
+        .then(() => process.exit(0))
+        .catch(() => process.exit(1));
+}
+
 
 // Realistic signals
 const DEMO_SIGNALS: Omit<Signal, 'id' | 'timestamp'>[] = [

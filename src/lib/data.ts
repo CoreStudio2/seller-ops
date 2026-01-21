@@ -4,7 +4,7 @@
  * Abstracts Redis (Hot Storage) and Turso (Cold Storage).
  */
 
-import { getRedisClient, publishSignal, getRecentSignals, updateLiveStatus, getCachedLiveStatus } from './redis/client';
+import { publishSignal as publishSignalToRedis, getRecentSignals, updateLiveStatus, getCachedLiveStatus } from './redis/unified-client';
 import { saveThreat, getRecentThreats, saveSignal } from './turso/database';
 import {
     createSignal,
@@ -27,7 +27,7 @@ export async function ingestSignal(type: SignalType, value: number, meta?: any):
 
     // 2. Hot Path: Publish to Redis for real-time feed
     const serialized = serializeSignal(signal);
-    await publishSignal(serialized);
+    await publishSignalToRedis(serialized);
 
     // 3. Cold Path: Persist to DB for audit
     // (Fire and forget to not block response)
@@ -52,8 +52,8 @@ export async function ingestSignal(type: SignalType, value: number, meta?: any):
         await saveThreat(threat);
 
         // Also publish threat to Redis (channel: threats)
-        const redis = getRedisClient();
-        await redis.publish('sellerops:threats', JSON.stringify(threat));
+        const redis = require('./redis/unified-client');
+        await redis.publishSignal(JSON.stringify(threat));
     }
 
     return { signal, threat };
