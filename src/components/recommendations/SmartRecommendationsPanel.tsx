@@ -148,6 +148,7 @@ export function SmartRecommendationsPanel() {
         if (!catalog && mounted) {
             loadCatalog();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [mounted]);
 
     if (!mounted || !catalog) {
@@ -437,7 +438,7 @@ export function SmartRecommendationsPanel() {
                             AI Powered Recommendations
                         </h3>
                         <p className="text-sm text-text-secondary mb-6">
-                            Select a product and click "Generate" to see AI-powered intelligent recommendations with strategic insights.
+                            Select a product and click &quot;Generate&quot; to see AI-powered intelligent recommendations with strategic insights.
                         </p>
                         <div className="space-y-2 text-xs text-text-tertiary text-left bg-surface-elevated p-4 border border-border-default">
                             <div>✓ AI catalog generation</div>

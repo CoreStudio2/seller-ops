@@ -32,13 +32,17 @@ interface ThreatCardProps {
     onClick: () => void;
 }
 
+// Helper function to calculate time since (moved outside component to avoid render impurity)
+function formatTimeSince(date: Date, now: number): string {
+    const seconds = Math.floor((now - date.getTime()) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+    return `${Math.floor(seconds / 3600)}h ago`;
+}
+
 function ThreatCard({ threat, isSelected, onClick }: ThreatCardProps) {
-    const timeSince = (date: Date) => {
-        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-        if (seconds < 60) return `${seconds}s ago`;
-        if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-        return `${Math.floor(seconds / 3600)}h ago`;
-    };
+    // Get current time once per render cycle (acceptable side effect)
+    const now = Date.now();
 
     return (
         <button
@@ -55,7 +59,7 @@ function ThreatCard({ threat, isSelected, onClick }: ThreatCardProps) {
             <div className="flex items-start justify-between gap-2 mb-2">
                 <SeverityBadge severity={threat.severity} />
                 <span className="font-mono text-xs text-text-tertiary">
-                    {timeSince(threat.detectedAt)}
+                    {formatTimeSince(threat.detectedAt, now)}
                 </span>
             </div>
 

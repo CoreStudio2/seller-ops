@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Ignore agent skills and configuration
+    ".agent/**",
+    "gemini_docs/**",
+    "scripts/**",
   ]),
 ]);
 

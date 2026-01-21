@@ -63,7 +63,7 @@ export async function ingestSignal(type: SignalType, value: number, meta?: any):
 
 export async function getDashboardData() {
     // 1. Get cached live status (or generate default if missing/stale)
-    let liveStatusStr = await getCachedLiveStatus();
+    const liveStatusStr = await getCachedLiveStatus();
     let liveStatus: LiveStatus;
 
     if (liveStatusStr) {
