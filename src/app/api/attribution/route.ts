@@ -43,17 +43,24 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(brief);
     } catch (error) {
         console.error('Attribution error:', error);
+        
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorStack = error instanceof Error ? error.stack : '';
 
         // Check if it's an API key error
-        if (error instanceof Error && error.message.includes('API')) {
+        if (errorMessage.includes('API') || errorMessage.includes('key')) {
             return NextResponse.json(
-                { error: 'Gemini API configuration error', details: error.message },
+                { error: 'Gemini API configuration error', details: errorMessage },
                 { status: 503 }
             );
         }
 
         return NextResponse.json(
-            { error: 'Attribution generation failed' },
+            { 
+                error: 'Attribution generation failed', 
+                details: errorMessage,
+                stack: process.env.NODE_ENV === 'development' ? errorStack : undefined
+            },
             { status: 500 }
         );
     }

@@ -179,7 +179,7 @@ export function AttributionBriefPanel() {
                         ATTRIBUTION BRIEF
                     </h2>
                     <p className="font-mono text-xs text-text-tertiary uppercase tracking-wider">
-                        Gemini Analysis • Confidence {displayBrief?.confidence ?? 0}%
+                        AI Analysis • Confidence {displayBrief?.confidence ?? 0}%
                     </p>
                 </div>
             </div>

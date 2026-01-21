@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Product {
     id: string;
@@ -91,7 +91,7 @@ export function SmartRecommendationsPanel() {
     // Load product catalog (Gemini-generated)
     const loadCatalog = async (refresh: boolean = false) => {
         if (typeof window === 'undefined') return;
-        
+
         setIsLoadingCatalog(true);
         try {
             const url = refresh ? '/api/recommendations?refresh=true' : '/api/recommendations';
@@ -143,16 +143,19 @@ export function SmartRecommendationsPanel() {
     };
 
     // Initial load - client-side only
-    if (!catalog && mounted && !isLoadingCatalog) {
-        loadCatalog();
-    }
+    // Use UseEffect to prevent multiple calls during render
+    useEffect(() => {
+        if (!catalog && mounted) {
+            loadCatalog();
+        }
+    }, [mounted]);
 
     if (!mounted || !catalog) {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-pulse font-mono text-signal-cyan text-lg mb-2">
-                        🧠 Gemini AI Initializing...
+                        🧠 AI Engine Initializing...
                     </div>
                     <div className="text-xs text-text-tertiary">
                         Generating product catalog with AI
@@ -169,7 +172,7 @@ export function SmartRecommendationsPanel() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h2 className="font-mono text-xl font-bold text-signal-cyan mb-1">
-                            🧠 GEMINI AI RECOMMENDATIONS
+                            🧠 AI RECOMMENDATIONS
                         </h2>
                         <p className="text-sm text-text-secondary">
                             AI-Generated Catalog + Intelligent Product Recommendations
@@ -177,7 +180,7 @@ export function SmartRecommendationsPanel() {
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="font-mono text-xs text-signal-green">
-                            ✓ Gemini: Primary AI
+                            ✓ AI Engine: Active
                         </div>
                         {useTensorFlow && (
                             <div className="font-mono text-xs text-signal-amber">
@@ -271,7 +274,7 @@ export function SmartRecommendationsPanel() {
                     <div className="hud-panel p-6 border-l-4 border-signal-amber">
                         <div className="flex items-center justify-between mb-4">
                             <div className="font-mono text-sm uppercase tracking-wider text-signal-amber">
-                                🧠 Gemini AI Analysis
+                                🧠 AI Analysis
                             </div>
                             <div className="flex gap-2 text-xs font-mono">
                                 <span className="text-text-tertiary">AI Confidence:</span>
@@ -334,11 +337,10 @@ export function SmartRecommendationsPanel() {
                                     </div>
                                     <div className="ml-4 text-center">
                                         <div className="text-xs text-text-tertiary mb-1">Match Score</div>
-                                        <div className={`text-2xl font-bold font-mono ${
-                                            rec.score > 80 ? 'text-signal-green' :
+                                        <div className={`text-2xl font-bold font-mono ${rec.score > 80 ? 'text-signal-green' :
                                             rec.score > 60 ? 'text-signal-amber' :
-                                            'text-signal-cyan'
-                                        }`}>
+                                                'text-signal-cyan'
+                                            }`}>
                                             {rec.score}%
                                         </div>
                                     </div>
@@ -418,7 +420,7 @@ export function SmartRecommendationsPanel() {
                     {/* Powered By */}
                     <div className="hud-panel p-3 flex items-center justify-center gap-4 text-xs font-mono text-text-tertiary">
                         <span>Powered by:</span>
-                        <span className="text-signal-amber">🧠 Gemini AI (Primary)</span>
+                        <span className="text-signal-amber">🧠 AI Engine (Primary)</span>
                         {result.powered.tensorflow && (
                             <span className="text-signal-cyan">+ TensorFlow.js (Enhanced)</span>
                         )}
@@ -432,13 +434,13 @@ export function SmartRecommendationsPanel() {
                     <div className="text-center max-w-md">
                         <div className="text-6xl mb-4">🧠</div>
                         <h3 className="font-mono text-lg font-bold text-text-primary mb-2">
-                            Gemini AI Recommendations
+                            AI Powered Recommendations
                         </h3>
                         <p className="text-sm text-text-secondary mb-6">
                             Select a product and click "Generate" to see AI-powered intelligent recommendations with strategic insights.
                         </p>
                         <div className="space-y-2 text-xs text-text-tertiary text-left bg-surface-elevated p-4 border border-border-default">
-                            <div>✓ Gemini AI catalog generation</div>
+                            <div>✓ AI catalog generation</div>
                             <div>✓ Deep context understanding</div>
                             <div>✓ Strategic business insights</div>
                             <div>✓ Bundle optimization with code execution</div>

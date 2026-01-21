@@ -66,7 +66,7 @@ function productToFeatureVector(product: Product, allProducts: Product[]): numbe
 export async function calculateSimilarity(
     productA: Product,
     productB: Product,
-    allProducts: Product[] = DEMO_PRODUCTS
+    allProducts: Product[]
 ): Promise<number> {
     const vectorA = productToFeatureVector(productA, allProducts);
     const vectorB = productToFeatureVector(productB, allProducts);
@@ -101,7 +101,7 @@ export async function calculateSimilarity(
 export async function getSimilarProducts(
     productId: string,
     topK: number = 3,
-    catalog: Product[] = DEMO_PRODUCTS
+    catalog: Product[]
 ): Promise<ProductRecommendation[]> {
     const targetProduct = catalog.find(p => p.id === productId);
     if (!targetProduct) {
@@ -137,7 +137,7 @@ export async function getSimilarProducts(
 export async function getComplementaryProducts(
     productId: string,
     topK: number = 3,
-    catalog: Product[] = DEMO_PRODUCTS
+    catalog: Product[]
 ): Promise<ProductRecommendation[]> {
     const targetProduct = catalog.find(p => p.id === productId);
     if (!targetProduct) {
@@ -179,7 +179,7 @@ export async function getComplementaryProducts(
 export async function getUpsellProducts(
     productId: string,
     topK: number = 2,
-    catalog: Product[] = DEMO_PRODUCTS
+    catalog: Product[]
 ): Promise<ProductRecommendation[]> {
     const targetProduct = catalog.find(p => p.id === productId);
     if (!targetProduct) {
@@ -217,7 +217,7 @@ export async function getUpsellProducts(
 export async function getSmartRecommendations(
     productId: string,
     strategy: 'similar' | 'complementary' | 'upsell' | 'mixed' = 'mixed',
-    catalog: Product[] = DEMO_PRODUCTS
+    catalog: Product[]
 ): Promise<RecommendationResult> {
     let recommendations: ProductRecommendation[] = [];
     let strategyUsed = strategy;
@@ -279,7 +279,7 @@ function generateReason(productA: Product, productB: Product, similarity: number
  * Generate similarity matrix for entire catalog using TensorFlow batch operations
  */
 export async function generateSimilarityMatrix(
-    catalog: Product[] = DEMO_PRODUCTS
+    catalog: Product[]
 ): Promise<number[][]> {
     const featureVectors = catalog.map(p => productToFeatureVector(p, catalog));
     const matrix = tf.tensor2d(featureVectors);
@@ -313,6 +313,6 @@ export async function generateSimilarityMatrix(
 export function getTensorFlowInfo(): { backend: string; ready: boolean } {
     return {
         backend: tf.getBackend(),
-        ready: tf.engine().backendInstance !== null
+        ready: !!tf.getBackend()
     };
 }

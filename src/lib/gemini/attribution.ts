@@ -15,7 +15,7 @@ import type {
 } from '@/lib/types';
 
 // === MODELS ===
-const PRIMARY_MODEL = 'gemini-2.5-flash';
+const PRIMARY_MODEL = 'gemini-2.5-flash-lite';
 const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
 
 // === JSON SCHEMA FOR STRUCTURED OUTPUT ===
@@ -129,9 +129,10 @@ export async function generateAttributionBrief(
     const ai = getGeminiClient();
 
     // Build context from signals
-    const signalContext = signals.map(s =>
-        `- ${s.type}: value=${s.value}, delta=${s.delta ?? 'N/A'}, time=${s.timestamp.toISOString()}`
-    ).join('\n');
+    const signalContext = signals.map(s => {
+        const timestamp = typeof s.timestamp === 'string' ? s.timestamp : s.timestamp.toISOString();
+        return `- ${s.type}: value=${s.value}, delta=${s.delta ?? 'N/A'}, time=${timestamp}`;
+    }).join('\n');
 
     const prompt = `
 <role>
@@ -151,7 +152,7 @@ Your job is to explain WHY a threat occurred by synthesizing multiple signals.
 Threat Detected: ${threat.title}
 Severity: ${threat.severity}
 Description: ${threat.description}
-Detection Time: ${threat.detectedAt.toISOString()}
+Detection Time: ${typeof threat.detectedAt === 'string' ? threat.detectedAt : threat.detectedAt.toISOString()}
 
 Related Signals:
 ${signalContext}
@@ -172,7 +173,7 @@ Analyze the signals and provide an Attribution Brief explaining:
             contents: prompt,
             config: {
                 responseMimeType: 'application/json',
-                responseSchema: AttributionBriefJsonSchema,
+                responseJsonSchema: AttributionBriefJsonSchema,
             },
         });
 

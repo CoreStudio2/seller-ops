@@ -14,8 +14,8 @@ export function useRealtimeDashboard() {
         '/api/status',
         fetcher,
         {
-            refreshInterval: 2000,
-            dedupingInterval: 1000,
+            refreshInterval: 5000,
+            dedupingInterval: 2000,
         }
     );
 

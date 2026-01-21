@@ -7,7 +7,7 @@
 import { GoogleGenAI } from '@google/genai';
 
 // === MODELS ===
-const PRIMARY_MODEL = 'gemini-2.5-flash';
+const PRIMARY_MODEL = 'gemini-2.5-flash-lite';
 const FALLBACK_MODEL = 'gemini-2.5-flash-lite';
 
 // === TYPES ===
@@ -87,11 +87,10 @@ const ProductSchema = {
         price: { type: 'number' },
         keywords: { type: 'array', items: { type: 'string' } },
         description: { type: 'string' },
-        specifications: { type: 'object' },
         targetAudience: { type: 'array', items: { type: 'string' } },
-        seasonality: { 
-            type: 'string', 
-            enum: ['ALL_YEAR', 'SEASONAL', 'TRENDING'] 
+        seasonality: {
+            type: 'string',
+            enum: ['ALL_YEAR', 'SEASONAL', 'TRENDING']
         }
     },
     required: ['id', 'name', 'category', 'price', 'keywords', 'description']
@@ -140,9 +139,9 @@ const RecommendationSchema = {
                     items: {
                         type: 'object',
                         properties: {
-                            type: { 
-                                type: 'string', 
-                                enum: ['CROSS_SELL', 'UPSELL', 'BUNDLE', 'TRENDING'] 
+                            type: {
+                                type: 'string',
+                                enum: ['CROSS_SELL', 'UPSELL', 'BUNDLE', 'TRENDING']
                             },
                             title: { type: 'string' },
                             description: { type: 'string' },
@@ -209,27 +208,14 @@ export async function generateProductCatalog(
 
     const prompt = `You are a product catalog generator for a ${businessContext} business.
 
-Generate ${productCount} realistic, diverse products with the following requirements:
+Generate ${productCount} realistic products with pricing, keywords, and descriptions.
+Return structured JSON matching the schema.`;
 
-1. Product diversity: Mix of different price points, categories, and use cases
-2. Realistic pricing: Use appropriate currency formatting (e.g., ₹ for INR)
-3. Rich metadata: Include keywords, specifications, and target audience
-4. Seasonality: Mark products as ALL_YEAR, SEASONAL, or TRENDING
-5. Complementary items: Some products should naturally complement others
-
-Generate products that would actually sell together and make business sense.
-Include both high-margin and volume products.
-
-Return the catalog as structured JSON matching the schema.`;
-
+    // Note: codeExecution tool cannot be used with structured JSON output
     const config: any = {
         responseMimeType: 'application/json',
-        responseSchema: CatalogSchema,
+        responseJsonSchema: CatalogSchema,
     };
-
-    if (useCodeExecution) {
-        config.tools = [{ codeExecution: {} }];
-    }
 
     try {
         const response = await client.models.generateContent({
@@ -240,7 +226,7 @@ Return the catalog as structured JSON matching the schema.`;
 
         const responseText = response.text || '{}';
         const catalogData = JSON.parse(responseText);
-        
+
         return {
             products: catalogData.products,
             categories: catalogData.categories,
@@ -251,7 +237,7 @@ Return the catalog as structured JSON matching the schema.`;
 
     } catch (error) {
         console.error('Gemini catalog generation error:', error);
-        
+
         // Fallback to simpler model
         try {
             const fallbackResponse = await client.models.generateContent({
@@ -259,13 +245,13 @@ Return the catalog as structured JSON matching the schema.`;
                 contents: prompt,
                 config: {
                     responseMimeType: 'application/json',
-                    responseSchema: CatalogSchema,
+                    responseJsonSchema: CatalogSchema,
                 }
             });
 
             const responseText = fallbackResponse.text || '{}';
             const catalogData = JSON.parse(responseText);
-            
+
             return {
                 products: catalogData.products,
                 categories: catalogData.categories,
@@ -274,9 +260,127 @@ Return the catalog as structured JSON matching the schema.`;
                 context: businessContext
             };
         } catch (fallbackError) {
-            throw new Error(`Failed to generate catalog: ${fallbackError}`);
+            console.error('Fallback model also failed:', fallbackError);
+
+            // Ultimate fallback: Return static demo catalog when quota exhausted
+            console.warn('⚠️ Using static demo catalog due to API quota limits');
+            return getStaticDemoCatalog(businessContext);
         }
     }
+}
+
+// === STATIC DEMO CATALOG (Fallback for rate limits) ===
+function getStaticDemoCatalog(businessContext: string): ProductCatalog {
+    const products: Product[] = [
+        {
+            id: 'PROD-001',
+            name: 'Premium Wireless Headphones',
+            category: 'Electronics',
+            price: 2499,
+            keywords: ['wireless', 'bluetooth', 'audio', 'noise-cancelling'],
+            description: 'High-quality wireless headphones with active noise cancellation',
+            targetAudience: ['professionals', 'students', 'music lovers'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-002',
+            name: 'Laptop Stand Aluminum',
+            category: 'Accessories',
+            price: 899,
+            keywords: ['laptop', 'ergonomic', 'desk', 'aluminum'],
+            description: 'Ergonomic laptop stand for better posture',
+            targetAudience: ['remote workers', 'students'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-003',
+            name: 'USB-C Hub Multi-Port',
+            category: 'Electronics',
+            price: 1299,
+            keywords: ['usb-c', 'hub', 'adapter', 'ports'],
+            description: '7-in-1 USB-C hub with HDMI, USB 3.0, and card readers',
+            targetAudience: ['professionals', 'digital nomads'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-004',
+            name: 'Mechanical Keyboard RGB',
+            category: 'Electronics',
+            price: 3499,
+            keywords: ['keyboard', 'mechanical', 'rgb', 'gaming'],
+            description: 'Mechanical gaming keyboard with RGB backlighting',
+            targetAudience: ['gamers', 'programmers'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-005',
+            name: 'Portable SSD 1TB',
+            category: 'Storage',
+            price: 4999,
+            keywords: ['ssd', 'storage', 'portable', 'backup'],
+            description: 'Fast portable SSD with 1TB capacity',
+            targetAudience: ['content creators', 'professionals'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-006',
+            name: 'Webcam 1080p HD',
+            category: 'Electronics',
+            price: 1899,
+            keywords: ['webcam', 'video', 'streaming', 'meetings'],
+            description: 'Full HD webcam for video calls and streaming',
+            targetAudience: ['remote workers', 'streamers'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-007',
+            name: 'Phone Stand Adjustable',
+            category: 'Accessories',
+            price: 399,
+            keywords: ['phone', 'stand', 'holder', 'desk'],
+            description: 'Adjustable phone stand for desk or nightstand',
+            targetAudience: ['everyone'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-008',
+            name: 'Wireless Mouse Ergonomic',
+            category: 'Electronics',
+            price: 799,
+            keywords: ['mouse', 'wireless', 'ergonomic', 'bluetooth'],
+            description: 'Ergonomic wireless mouse with precision tracking',
+            targetAudience: ['professionals', 'students'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-009',
+            name: 'Cable Management Kit',
+            category: 'Accessories',
+            price: 299,
+            keywords: ['cables', 'organizer', 'desk', 'management'],
+            description: 'Complete cable management solution for clean desk setup',
+            targetAudience: ['everyone'],
+            seasonality: 'ALL_YEAR'
+        },
+        {
+            id: 'PROD-010',
+            name: 'Desk Lamp LED Smart',
+            category: 'Accessories',
+            price: 1599,
+            keywords: ['lamp', 'led', 'desk', 'smart', 'adjustable'],
+            description: 'Smart LED desk lamp with adjustable brightness and color',
+            targetAudience: ['students', 'professionals'],
+            seasonality: 'ALL_YEAR'
+        }
+    ];
+
+    return {
+        products,
+        categories: ['Electronics', 'Accessories', 'Storage'],
+        totalValue: products.reduce((sum, p) => sum + p.price, 0),
+        generatedAt: new Date(),
+        context: `${businessContext} (demo mode - API quota reached)`
+    };
 }
 
 // === SMART RECOMMENDATIONS ===
@@ -299,13 +403,13 @@ export async function generateSmartRecommendations(
     const prompt = buildRecommendationPrompt(targetProduct, catalog, request);
 
     try {
+        // Note: codeExecution cannot be used with structured JSON output
         const response = await client.models.generateContent({
             model: PRIMARY_MODEL,
             contents: prompt,
             config: {
                 responseMimeType: 'application/json',
-                responseSchema: RecommendationSchema,
-                tools: [{ codeExecution: {} }]
+                responseJsonSchema: RecommendationSchema,
             }
         });
 
@@ -327,6 +431,25 @@ export async function generateSmartRecommendations(
             };
         });
 
+        // RECALCULATE BUNDLE MATH (ensure correctness via TypeScript)
+        if (result.analysis && result.analysis.bundleOpportunities) {
+            result.analysis.bundleOpportunities = result.analysis.bundleOpportunities.map((bundle: any) => {
+                let totalListPrice = 0;
+                bundle.products.forEach((prodIdOrName: string) => {
+                    // Try to find by ID or Name (AI might return either)
+                    const p = catalog.find(cp => cp.id === prodIdOrName || cp.name === prodIdOrName);
+                    if (p) totalListPrice += p.price;
+                });
+
+                // Recalculate expected value if we found the products
+                if (totalListPrice > 0) {
+                    const discountFactor = 1 - (bundle.discount / 100);
+                    bundle.expectedValue = Math.round(totalListPrice * discountFactor);
+                }
+                return bundle;
+            });
+        }
+
         return {
             recommendations,
             strategy: result.strategy,
@@ -346,18 +469,19 @@ export async function generateSmartRecommendations(
  */
 export async function enhanceWithTensorFlow(
     geminiResult: RecommendationResult,
-    calculateSimilarity: (a: Product, b: Product) => Promise<number>,
-    targetProduct: Product
+    calculateSimilarity: (a: Product, b: Product, catalog: Product[]) => Promise<number>,
+    targetProduct: Product,
+    catalog: Product[]
 ): Promise<RecommendationResult> {
     try {
         // Calculate TF similarity scores for Gemini's recommendations
         const enhanced = await Promise.all(
             geminiResult.recommendations.map(async (rec) => {
-                const tfScore = await calculateSimilarity(targetProduct, rec.product);
-                
+                const tfScore = await calculateSimilarity(targetProduct, rec.product, catalog);
+
                 // Blend Gemini intelligence with TF similarity (70% Gemini, 30% TF)
                 const blendedScore = (rec.score * 0.7) + (tfScore * 100 * 0.3);
-                
+
                 return {
                     ...rec,
                     score: Math.round(blendedScore),
@@ -389,7 +513,7 @@ function buildRecommendationPrompt(
     request: RecommendationRequest
 ): string {
     const strategy = request.strategy || 'smart';
-    const customerInfo = request.customerProfile 
+    const customerInfo = request.customerProfile
         ? `\nCustomer Profile:
 - Budget: ${request.customerProfile.budget || 'Not specified'}
 - Preferences: ${request.customerProfile.preferences?.join(', ') || 'None'}
@@ -413,20 +537,9 @@ ${customerInfo}
 ${request.context ? `\nADDITIONAL CONTEXT: ${request.context}` : ''}
 
 TASK:
-Generate the top 3-5 product recommendations using ${strategy} strategy.
-
-For each recommendation:
-1. Provide a clear reason WHY this product pairs well
-2. Generate actionable insights (e.g., "Bundle these for 15% off")
-3. Rate bundle compatibility (0-100)
-
-Also provide:
-- Strategic analysis with cross-sell/upsell/bundle insights
-- Bundle opportunities with specific discounts
-- Expected business impact (revenue increase, conversion boost)
-- Pricing strategy recommendations
-
-Use Python code execution if needed to calculate optimal bundle prices or analyze patterns.
+Generate top product recommendations.
+Make up a reason, insights, and bundle opportunities.
+Use standard strategic analysis.
 
 Return structured JSON following the schema.`;
 }
@@ -443,7 +556,7 @@ export async function getCachedCatalog(
     forceRefresh: boolean = false
 ): Promise<ProductCatalog> {
     const now = new Date();
-    
+
     if (!forceRefresh && cachedCatalog && cacheExpiry && now < cacheExpiry) {
         return cachedCatalog;
     }
@@ -451,7 +564,7 @@ export async function getCachedCatalog(
     // Generate fresh catalog
     cachedCatalog = await generateProductCatalog(businessContext);
     cacheExpiry = new Date(now.getTime() + CACHE_TTL_MS);
-    
+
     return cachedCatalog;
 }
 

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { 
-    getCachedCatalog, 
-    generateSmartRecommendations, 
+import {
+    getCachedCatalog,
+    generateSmartRecommendations,
     enhanceWithTensorFlow,
-    type RecommendationRequest 
+    type RecommendationRequest
 } from '@/lib/gemini/catalog-generator';
 import { calculateSimilarity, getTensorFlowInfo } from '@/lib/tensorflow/recommendation-engine';
 
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         // Check if Gemini API key is set
         if (!process.env.GEMINI_API_KEY) {
             return NextResponse.json(
-                { 
+                {
                     error: 'Gemini API key not configured',
                     details: 'Please set GEMINI_API_KEY in your .env.local file'
                 },
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
         // Get Gemini-generated catalog
         const catalog = await getCachedCatalog();
-        
+
         // Find target product
         const targetProduct = catalog.products.find(p => p.id === params.productId);
         if (!targetProduct) {
@@ -69,7 +69,8 @@ export async function POST(request: NextRequest) {
                 result = await enhanceWithTensorFlow(
                     result,
                     calculateSimilarity,
-                    targetProduct
+                    targetProduct,
+                    catalog.products
                 );
             } catch (error) {
                 console.warn('TensorFlow enhancement failed, using pure Gemini:', error);
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
         // Check if Gemini API key is set
         if (!process.env.GEMINI_API_KEY) {
             return NextResponse.json(
-                { 
+                {
                     error: 'Gemini API key not configured',
                     details: 'Please set GEMINI_API_KEY in your .env.local file. Get one from https://ai.google.dev/',
                     suggestion: 'Add: GEMINI_API_KEY=your_key_here to .env.local'

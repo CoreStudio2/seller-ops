@@ -9,9 +9,60 @@ import {
     getSimilarProducts,
     getSmartRecommendations,
     getTensorFlowInfo,
-    DEMO_PRODUCTS,
     generateSimilarityMatrix
 } from './recommendation-engine';
+
+// Mock Data
+const DEMO_PRODUCTS = [
+    {
+        id: 'prod-1',
+        name: 'Wireless Earbuds',
+        category: 'Electronics',
+        price: 99,
+        keywords: ['wireless', 'audio', 'earbuds'],
+        description: 'High quality sound'
+    },
+    {
+        id: 'prod-2',
+        name: 'Phone Case',
+        category: 'Accessories',
+        price: 20,
+        keywords: ['protection', 'case', 'mobile'],
+        description: 'Durable protection'
+    },
+    {
+        id: 'prod-3',
+        name: 'Charging Cable',
+        category: 'Accessories',
+        price: 15,
+        keywords: ['charging', 'fast', 'cable'],
+        description: 'Fast charging'
+    },
+    {
+        id: 'prod-4',
+        name: 'Power Bank',
+        category: 'Electronics',
+        price: 50,
+        keywords: ['battery', 'portable', 'power'],
+        description: 'Long lasting battery'
+    },
+    {
+        id: 'prod-5',
+        name: 'Screen Protector',
+        category: 'Accessories',
+        price: 10,
+        keywords: ['screen', 'protection', 'glass'],
+        description: 'Tempered glass'
+    },
+    {
+        id: 'prod-6',
+        name: 'Bluetooth Speaker',
+        category: 'Electronics',
+        price: 80,
+        keywords: ['wireless', 'audio', 'speaker'],
+        description: 'Portable speaker'
+    }
+];
 
 describe('TensorFlow Recommendation Engine', () => {
     beforeAll(async () => {
@@ -37,7 +88,7 @@ describe('TensorFlow Recommendation Engine', () => {
             const productA = DEMO_PRODUCTS[0]; // Wireless Earbuds
             const productB = DEMO_PRODUCTS[5]; // Bluetooth Speaker
 
-            const similarity = await calculateSimilarity(productA, productB);
+            const similarity = await calculateSimilarity(productA, productB, DEMO_PRODUCTS);
 
             expect(similarity).toBeGreaterThanOrEqual(0);
             expect(similarity).toBeLessThanOrEqual(1);
@@ -48,7 +99,7 @@ describe('TensorFlow Recommendation Engine', () => {
             const earbuds = DEMO_PRODUCTS[0]; // Electronics
             const speaker = DEMO_PRODUCTS[5]; // Electronics
 
-            const similarity = await calculateSimilarity(earbuds, speaker);
+            const similarity = await calculateSimilarity(earbuds, speaker, DEMO_PRODUCTS);
 
             // Same category + similar keywords should have decent similarity
             expect(similarity).toBeGreaterThan(0.3);
@@ -58,7 +109,7 @@ describe('TensorFlow Recommendation Engine', () => {
             const earbuds = DEMO_PRODUCTS[0]; // Electronics
             const phoneCase = DEMO_PRODUCTS[1]; // Accessories
 
-            const similarity = await calculateSimilarity(earbuds, phoneCase);
+            const similarity = await calculateSimilarity(earbuds, phoneCase, DEMO_PRODUCTS);
 
             // Different categories should have lower similarity
             expect(similarity).toBeLessThan(0.8);
@@ -66,7 +117,7 @@ describe('TensorFlow Recommendation Engine', () => {
 
         it('should return 1.0 for identical products', async () => {
             const product = DEMO_PRODUCTS[0];
-            const similarity = await calculateSimilarity(product, product);
+            const similarity = await calculateSimilarity(product, product, DEMO_PRODUCTS);
 
             // Same product should have perfect similarity
             expect(similarity).toBeCloseTo(1.0, 1);
@@ -78,14 +129,14 @@ describe('TensorFlow Recommendation Engine', () => {
             const productId = 'prod-1'; // Wireless Earbuds
             const topK = 3;
 
-            const recommendations = await getSimilarProducts(productId, topK);
+            const recommendations = await getSimilarProducts(productId, topK, DEMO_PRODUCTS);
 
             expect(recommendations).toHaveLength(topK);
             expect(recommendations[0].product.id).not.toBe(productId);
         });
 
         it('should sort recommendations by score descending', async () => {
-            const recommendations = await getSimilarProducts('prod-1', 5);
+            const recommendations = await getSimilarProducts('prod-1', 5, DEMO_PRODUCTS);
 
             for (let i = 0; i < recommendations.length - 1; i++) {
                 expect(recommendations[i].score).toBeGreaterThanOrEqual(
@@ -95,7 +146,7 @@ describe('TensorFlow Recommendation Engine', () => {
         });
 
         it('should include reason for recommendation', async () => {
-            const recommendations = await getSimilarProducts('prod-1', 2);
+            const recommendations = await getSimilarProducts('prod-1', 2, DEMO_PRODUCTS);
 
             recommendations.forEach(rec => {
                 expect(rec.reason).toBeTruthy();
@@ -105,14 +156,14 @@ describe('TensorFlow Recommendation Engine', () => {
 
         it('should throw error for non-existent product', async () => {
             await expect(
-                getSimilarProducts('non-existent-id')
+                getSimilarProducts('non-existent-id', 3, DEMO_PRODUCTS)
             ).rejects.toThrow();
         });
     });
 
     describe('Smart Recommendations', () => {
         it('should generate mixed strategy recommendations', async () => {
-            const result = await getSmartRecommendations('prod-1', 'mixed');
+            const result = await getSmartRecommendations('prod-1', 'mixed', DEMO_PRODUCTS);
 
             expect(result.recommendations.length).toBeGreaterThan(0);
             expect(result.strategy).toBe('mixed');
@@ -121,7 +172,7 @@ describe('TensorFlow Recommendation Engine', () => {
         });
 
         it('should filter out low-score recommendations', async () => {
-            const result = await getSmartRecommendations('prod-1', 'mixed');
+            const result = await getSmartRecommendations('prod-1', 'mixed', DEMO_PRODUCTS);
 
             result.recommendations.forEach(rec => {
                 expect(rec.score).toBeGreaterThan(30);
@@ -129,20 +180,20 @@ describe('TensorFlow Recommendation Engine', () => {
         });
 
         it('should support similar strategy', async () => {
-            const result = await getSmartRecommendations('prod-1', 'similar');
+            const result = await getSmartRecommendations('prod-1', 'similar', DEMO_PRODUCTS);
 
             expect(result.strategy).toBe('similar');
             expect(result.recommendations.length).toBeGreaterThan(0);
         });
 
         it('should support complementary strategy', async () => {
-            const result = await getSmartRecommendations('prod-1', 'complementary');
+            const result = await getSmartRecommendations('prod-1', 'complementary', DEMO_PRODUCTS);
 
             expect(result.strategy).toBe('complementary');
         });
 
         it('should support upsell strategy', async () => {
-            const result = await getSmartRecommendations('prod-1', 'upsell');
+            const result = await getSmartRecommendations('prod-1', 'upsell', DEMO_PRODUCTS);
 
             expect(result.strategy).toBe('upsell');
         });
@@ -208,8 +259,8 @@ describe('TensorFlow Recommendation Engine', () => {
             const initialTensors = tf.memory().numTensors;
 
             // Perform multiple operations
-            await getSimilarProducts('prod-1', 3);
-            await calculateSimilarity(DEMO_PRODUCTS[0], DEMO_PRODUCTS[1]);
+            await getSimilarProducts('prod-1', 3, DEMO_PRODUCTS);
+            await calculateSimilarity(DEMO_PRODUCTS[0], DEMO_PRODUCTS[1], DEMO_PRODUCTS);
 
             const finalTensors = tf.memory().numTensors;
 
