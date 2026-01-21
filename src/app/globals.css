@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* ============================================
+   SELLEROPS TACTICAL WAR ROOM DESIGN SYSTEM
+   Sharp HUD | High Contrast | Zero SaaS Clichés
+   ============================================ */
+
+:root {
+  /* === SIGNAL COLORS (No purple, no fintech blues) === */
+  --signal-red: oklch(0.55 0.25 25);      /* Alert Red - Critical threats */
+  --signal-amber: oklch(0.75 0.18 75);    /* Warning Amber - Caution */
+  --signal-green: oklch(0.65 0.20 145);   /* Tactical Green - Success/OK */
+  --signal-cyan: oklch(0.70 0.12 200);    /* Info Cyan - Neutral data */
+  
+  /* === SURFACE COLORS (Dark HUD base) === */
+  --surface-base: oklch(0.10 0.01 250);   /* Deep black-blue for base */
+  --surface-elevated: oklch(0.14 0.01 250); /* Raised panels */
+  --surface-overlay: oklch(0.18 0.01 250);  /* Modals/overlays */
+  
+  /* === TEXT HIERARCHY === */
+  --text-primary: oklch(0.95 0 0);        /* High contrast white */
+  --text-secondary: oklch(0.70 0 0);      /* Muted gray */
+  --text-tertiary: oklch(0.50 0 0);       /* Dim labels */
+  
+  /* === BORDER & ACCENTS === */
+  --border-default: oklch(0.25 0.01 250);
+  --border-focus: oklch(0.50 0.15 145);   /* Green focus ring */
+  
+  /* === TYPOGRAPHY === */
+  --font-display: 'JetBrains Mono', 'SF Mono', monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+  
+  /* === SPACING (8pt grid) === */
+  --space-xs: 0.25rem;  /* 4px */
+  --space-sm: 0.5rem;   /* 8px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  --space-2xl: 3rem;    /* 48px */
+}
+
+/* === TACTICAL THEME TOKENS === */
+@theme inline {
+  /* Colors */
+  --color-signal-red: var(--signal-red);
+  --color-signal-amber: var(--signal-amber);
+  --color-signal-green: var(--signal-green);
+  --color-signal-cyan: var(--signal-cyan);
+  
+  --color-surface-base: var(--surface-base);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-overlay: var(--surface-overlay);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  
+  --color-border-default: var(--border-default);
+  --color-border-focus: var(--border-focus);
+  
+  /* Typography */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  
+  /* Sharp geometry - ZERO border-radius by default */
+  --radius-none: 0px;
+  --radius-sm: 2px;  /* Only for subtle softening */
+}
+
+/* === BASE STYLES === */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* === TACTICAL TYPOGRAPHY === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: var(--font-display);
+}
+
+/* === SIGNAL BADGES (Threat levels) === */
+.signal-critical {
+  background: var(--signal-red);
+  color: white;
+}
+
+.signal-warning {
+  background: var(--signal-amber);
+  color: black;
+}
+
+.signal-ok {
+  background: var(--signal-green);
+  color: black;
+}
+
+.signal-info {
+  background: var(--signal-cyan);
+  color: black;
+}
+
+/* === HUD PANEL STYLING === */
+.hud-panel {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-default);
+  /* Sharp corners - no rounded */
+}
+
+.hud-panel-glow {
+  box-shadow: 
+    0 0 0 1px var(--border-default),
+    0 0 20px -5px var(--signal-green);
+}
+
+/* === ANIMATIONS (Tactical feel) === */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 var(--signal-red);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 15px 2px var(--signal-red);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes terminal-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out forwards;
+}
+
+.animate-terminal-blink {
+  animation: terminal-blink 1s step-end infinite;
+}
+
+/* === SCROLLBAR (HUD style) === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* === FOCUS STATES (Accessibility) === */
+*:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
