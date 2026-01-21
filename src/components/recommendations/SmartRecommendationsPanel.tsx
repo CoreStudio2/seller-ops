@@ -1,12 +1,21 @@
 /**
  * Smart Recommendations Panel Component
- * Showcases TensorFlow + Gemini AI recommendation engine
+ * Showcases Gemini AI as primary recommendation engine
+ * with optional TensorFlow similarity enhancement
  */
 
 'use client';
 
 import { useState } from 'react';
-import type { Product } from '@/lib/tensorflow/recommendation-engine';
+
+interface Product {
+    id: string;
+    name: string;
+    category: string;
+    price: number;
+    keywords: string[];
+    description: string;
+}
 
 interface RecommendationResponse {
     targetProduct: Product;
@@ -14,9 +23,10 @@ interface RecommendationResponse {
         product: Product;
         score: number;
         reason: string;
+        insights: string[];
     }>;
     strategy: string;
-    tfConfidence: number;
+    confidence: number;
     analysis: {
         summary: string;
         insights: Array<{
@@ -36,17 +46,30 @@ interface RecommendationResponse {
             revenueIncrease: string;
             conversionBoost: string;
         };
-        confidence: number;
     };
     powered: {
-        tensorflow: boolean;
         gemini: boolean;
+        tensorflow: boolean;
         backend: string;
+    };
+    catalog: {
+        totalProducts: number;
+        categories: string[];
+        generatedAt: string;
     };
 }
 
 interface ProductCatalog {
     products: Product[];
+    totalProducts: number;
+    categories: string[];
+    totalValue: number;
+    generatedAt: string;
+    context: string;
+    powered: {
+        gemini: boolean;
+        tensorflow: boolean;
+    };
     tensorFlowBackend: string;
     tensorFlowReady: boolean;
 }
@@ -56,21 +79,24 @@ export function SmartRecommendationsPanel() {
     const [selectedProductId, setSelectedProductId] = useState<string>('');
     const [result, setResult] = useState<RecommendationResponse | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [useGemini, setUseGemini] = useState(false);
+    const [useTensorFlow, setUseTensorFlow] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isLoadingCatalog, setIsLoadingCatalog] = useState(false);
 
     // Client-side only initialization
     if (typeof window !== 'undefined' && !mounted) {
         setMounted(true);
     }
 
-    // Load product catalog
-    const loadCatalog = async () => {
-        if (typeof window === 'undefined') return; // Skip on server
+    // Load product catalog (Gemini-generated)
+    const loadCatalog = async (refresh: boolean = false) => {
+        if (typeof window === 'undefined') return;
         
+        setIsLoadingCatalog(true);
         try {
-            const response = await fetch('/api/recommendations');
-            if (!response.ok) throw new Error('Failed to fetch');
+            const url = refresh ? '/api/recommendations?refresh=true' : '/api/recommendations';
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Failed to fetch catalog');
             const data = await response.json();
             setCatalog(data);
             if (data.products.length > 0) {
@@ -78,10 +104,12 @@ export function SmartRecommendationsPanel() {
             }
         } catch (error) {
             console.error('Failed to load catalog:', error);
+        } finally {
+            setIsLoadingCatalog(false);
         }
     };
 
-    // Generate recommendations
+    // Generate recommendations (Gemini-first)
     const generateRecommendations = async () => {
         if (!selectedProductId) return;
 
@@ -92,8 +120,8 @@ export function SmartRecommendationsPanel() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     productId: selectedProductId,
-                    strategy: 'mixed',
-                    useGeminiAnalysis: useGemini
+                    strategy: 'smart',
+                    useTensorFlowEnhancement: useTensorFlow
                 })
             });
 
@@ -109,7 +137,7 @@ export function SmartRecommendationsPanel() {
     };
 
     // Initial load - client-side only
-    if (!catalog && mounted) {
+    if (!catalog && mounted && !isLoadingCatalog) {
         loadCatalog();
     }
 
@@ -117,8 +145,11 @@ export function SmartRecommendationsPanel() {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-pulse font-mono text-signal-cyan">
-                        ⚡ Initializing TensorFlow.js...
+                    <div className="animate-pulse font-mono text-signal-cyan text-lg mb-2">
+                        🧠 Gemini AI Initializing...
+                    </div>
+                    <div className="text-xs text-text-tertiary">
+                        Generating product catalog with AI
                     </div>
                 </div>
             </div>
@@ -132,19 +163,45 @@ export function SmartRecommendationsPanel() {
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h2 className="font-mono text-xl font-bold text-signal-cyan mb-1">
-                            🤖 SMART RECOMMENDATIONS
+                            🧠 GEMINI AI RECOMMENDATIONS
                         </h2>
                         <p className="text-sm text-text-secondary">
-                            TensorFlow.js Product Similarity + Gemini AI Analysis
+                            AI-Generated Catalog + Intelligent Product Recommendations
                         </p>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className="font-mono text-xs text-signal-green">
-                            ✓ TF Backend: {catalog.tensorFlowBackend}
+                            ✓ Gemini: Primary AI
                         </div>
-                        <div className="font-mono text-xs text-signal-amber">
-                            {useGemini ? '✓ Gemini AI: Active' : '○ Gemini AI: Off'}
+                        {useTensorFlow && (
+                            <div className="font-mono text-xs text-signal-amber">
+                                + TensorFlow: Enhanced
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Catalog Info */}
+                <div className="mb-4 p-3 bg-surface-elevated border border-border-default">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                        <div className="flex gap-4">
+                            <span className="text-text-tertiary">
+                                Catalog: <span className="text-signal-cyan">{catalog.totalProducts} products</span>
+                            </span>
+                            <span className="text-text-tertiary">
+                                Value: <span className="text-signal-green">₹{catalog.totalValue.toLocaleString()}</span>
+                            </span>
+                            <span className="text-text-tertiary">
+                                Generated: <span className="text-text-secondary">{new Date(catalog.generatedAt).toLocaleTimeString()}</span>
+                            </span>
                         </div>
+                        <button
+                            onClick={() => loadCatalog(true)}
+                            disabled={isLoadingCatalog}
+                            className="text-signal-cyan hover:text-signal-amber transition-colors disabled:opacity-50"
+                        >
+                            {isLoadingCatalog ? '⟳ Regenerating...' : '↻ Refresh Catalog'}
+                        </button>
                     </div>
                 </div>
 
@@ -165,12 +222,12 @@ export function SmartRecommendationsPanel() {
                     <label className="flex items-center gap-2 px-4 bg-surface-elevated border border-border-default cursor-pointer hover:border-signal-amber transition-colors">
                         <input
                             type="checkbox"
-                            checked={useGemini}
-                            onChange={(e) => setUseGemini(e.target.checked)}
+                            checked={useTensorFlow}
+                            onChange={(e) => setUseTensorFlow(e.target.checked)}
                             className="w-4 h-4"
                         />
                         <span className="font-mono text-xs uppercase tracking-wider text-text-secondary">
-                            Use Gemini Analysis
+                            + TensorFlow Enhancement
                         </span>
                     </label>
 
@@ -208,13 +265,17 @@ export function SmartRecommendationsPanel() {
                     <div className="hud-panel p-6 border-l-4 border-signal-amber">
                         <div className="flex items-center justify-between mb-4">
                             <div className="font-mono text-sm uppercase tracking-wider text-signal-amber">
-                                🧠 AI Analysis
+                                🧠 Gemini AI Analysis
                             </div>
                             <div className="flex gap-2 text-xs font-mono">
-                                <span className="text-text-tertiary">TF Confidence:</span>
-                                <span className="text-signal-green font-bold">{result.tfConfidence}%</span>
-                                <span className="text-text-tertiary ml-3">Gemini Confidence:</span>
-                                <span className="text-signal-green font-bold">{result.analysis.confidence}%</span>
+                                <span className="text-text-tertiary">AI Confidence:</span>
+                                <span className="text-signal-green font-bold">{result.confidence}%</span>
+                                {result.powered.tensorflow && (
+                                    <>
+                                        <span className="text-text-tertiary ml-3">+ TF Enhanced</span>
+                                        <span className="text-signal-cyan">✓</span>
+                                    </>
+                                )}
                             </div>
                         </div>
                         <p className="text-text-primary leading-relaxed mb-4">
@@ -251,7 +312,16 @@ export function SmartRecommendationsPanel() {
                                         <p className="text-sm text-text-secondary mb-2">
                                             {rec.reason}
                                         </p>
-                                        <div className="flex items-center gap-3 text-xs text-text-tertiary">
+                                        {rec.insights && rec.insights.length > 0 && (
+                                            <div className="mt-2 space-y-1">
+                                                {rec.insights.map((insight, i) => (
+                                                    <div key={i} className="text-xs text-signal-cyan">
+                                                        • {insight}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        <div className="flex items-center gap-3 text-xs text-text-tertiary mt-2">
                                             <span>{rec.product.category}</span>
                                             <span className="text-text-primary font-bold">₹{rec.product.price}</span>
                                         </div>
@@ -342,9 +412,9 @@ export function SmartRecommendationsPanel() {
                     {/* Powered By */}
                     <div className="hud-panel p-3 flex items-center justify-center gap-4 text-xs font-mono text-text-tertiary">
                         <span>Powered by:</span>
-                        <span className="text-signal-cyan">TensorFlow.js ({result.powered.backend})</span>
-                        {result.powered.gemini && (
-                            <span className="text-signal-amber">+ Gemini AI with Code Execution</span>
+                        <span className="text-signal-amber">🧠 Gemini AI (Primary)</span>
+                        {result.powered.tensorflow && (
+                            <span className="text-signal-cyan">+ TensorFlow.js (Enhanced)</span>
                         )}
                     </div>
                 </div>
@@ -354,19 +424,19 @@ export function SmartRecommendationsPanel() {
             {!result && !isLoading && (
                 <div className="flex-1 flex items-center justify-center">
                     <div className="text-center max-w-md">
-                        <div className="text-6xl mb-4">🤖</div>
+                        <div className="text-6xl mb-4">🧠</div>
                         <h3 className="font-mono text-lg font-bold text-text-primary mb-2">
-                            Smart Recommendations Engine
+                            Gemini AI Recommendations
                         </h3>
                         <p className="text-sm text-text-secondary mb-6">
-                            Select a product and click "Generate" to see TensorFlow-powered product recommendations combined with Gemini AI analysis.
+                            Select a product and click "Generate" to see AI-powered intelligent recommendations with strategic insights.
                         </p>
                         <div className="space-y-2 text-xs text-text-tertiary text-left bg-surface-elevated p-4 border border-border-default">
-                            <div>✓ TensorFlow.js product embeddings</div>
-                            <div>✓ Cosine similarity matching</div>
-                            <div>✓ Gemini AI strategic analysis</div>
-                            <div>✓ Code execution for pricing optimization</div>
-                            <div>✓ Zero training data required</div>
+                            <div>✓ Gemini AI catalog generation</div>
+                            <div>✓ Deep context understanding</div>
+                            <div>✓ Strategic business insights</div>
+                            <div>✓ Bundle optimization with code execution</div>
+                            <div>✓ Optional TensorFlow similarity enhancement</div>
                         </div>
                     </div>
                 </div>

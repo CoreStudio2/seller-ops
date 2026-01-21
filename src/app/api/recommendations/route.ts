@@ -1,13 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getSmartRecommendations, DEMO_PRODUCTS, getTensorFlowInfo } from '@/lib/tensorflow/recommendation-engine';
-import { analyzeRecommendations, quickAnalyzeRecommendations } from '@/lib/gemini/recommendation-analysis';
+import { 
+    getCachedCatalog, 
+    generateSmartRecommendations, 
+    enhanceWithTensorFlow,
+    type RecommendationRequest 
+} from '@/lib/gemini/catalog-generator';
+import { calculateSimilarity, getTensorFlowInfo } from '@/lib/tensorflow/recommendation-engine';
 
 // Request validation
 const RecommendationRequestSchema = z.object({
     productId: z.string(),
-    strategy: z.enum(['similar', 'complementary', 'upsell', 'mixed']).optional(),
-    useGeminiAnalysis: z.boolean().optional().default(false),
+    strategy: z.enum(['cross-sell', 'upsell', 'bundle', 'smart']).optional(),
+    useTensorFlowEnhancement: z.boolean().optional().default(false),
+    context: z.string().optional(),
+    customerProfile: z.object({
+        purchaseHistory: z.array(z.string()).optional(),
+        budget: z.number().optional(),
+        preferences: z.array(z.string()).optional()
+    }).optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -15,44 +26,44 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const params = RecommendationRequestSchema.parse(body);
 
-        // Get product from catalog
-        const targetProduct = DEMO_PRODUCTS.find(p => p.id === params.productId);
+        // Get Gemini-generated catalog
+        const catalog = await getCachedCatalog();
+        
+        // Find target product
+        const targetProduct = catalog.products.find(p => p.id === params.productId);
         if (!targetProduct) {
             return NextResponse.json(
-                { error: 'Product not found' },
+                { error: 'Product not found in catalog' },
                 { status: 404 }
             );
         }
 
-        // Get TensorFlow recommendations
-        const tfResult = await getSmartRecommendations(
-            params.productId,
-            params.strategy || 'mixed'
+        // Build recommendation request
+        const recommendationRequest: RecommendationRequest = {
+            productId: params.productId,
+            strategy: params.strategy,
+            context: params.context,
+            customerProfile: params.customerProfile
+        };
+
+        // PRIMARY: Get Gemini AI recommendations
+        let result = await generateSmartRecommendations(
+            recommendationRequest,
+            catalog.products
         );
 
-        // Get Gemini analysis
-        let analysis;
-        if (params.useGeminiAnalysis) {
+        // OPTIONAL: Enhance with TensorFlow similarity scores
+        if (params.useTensorFlowEnhancement) {
             try {
-                // Try full Gemini analysis (may fail without API key)
-                analysis = await analyzeRecommendations(
-                    targetProduct,
-                    tfResult.recommendations,
-                    true // Enable code execution
+                result = await enhanceWithTensorFlow(
+                    result,
+                    calculateSimilarity,
+                    targetProduct
                 );
             } catch (error) {
-                console.warn('Gemini analysis failed, using quick analysis:', error);
-                analysis = quickAnalyzeRecommendations(
-                    targetProduct,
-                    tfResult.recommendations
-                );
+                console.warn('TensorFlow enhancement failed, using pure Gemini:', error);
+                // Continue with pure Gemini result
             }
-        } else {
-            // Use quick local analysis
-            analysis = quickAnalyzeRecommendations(
-                targetProduct,
-                tfResult.recommendations
-            );
         }
 
         // Get TensorFlow backend info
@@ -60,15 +71,19 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             targetProduct,
-            recommendations: tfResult.recommendations,
-            strategy: tfResult.strategy,
-            tfConfidence: tfResult.confidence,
-            analysis,
-            tensorFlowBackend: tfInfo.backend,
+            recommendations: result.recommendations,
+            strategy: result.strategy,
+            confidence: result.confidence,
+            analysis: result.analysis,
             powered: {
-                tensorflow: true,
-                gemini: params.useGeminiAnalysis,
+                gemini: true,
+                tensorflow: result.tensorFlowEnhanced || false,
                 backend: tfInfo.backend
+            },
+            catalog: {
+                totalProducts: catalog.products.length,
+                categories: catalog.categories,
+                generatedAt: catalog.generatedAt
             }
         });
 
@@ -82,28 +97,44 @@ export async function POST(request: NextRequest) {
 
         console.error('Recommendation error:', error);
         return NextResponse.json(
-            { error: 'Failed to generate recommendations' },
+            { error: 'Failed to generate recommendations', details: String(error) },
             { status: 500 }
         );
     }
 }
 
-// GET endpoint to list all products
-export async function GET() {
+// GET endpoint to list all products (from Gemini-generated catalog)
+export async function GET(request: NextRequest) {
     try {
+        const { searchParams } = new URL(request.url);
+        const forceRefresh = searchParams.get('refresh') === 'true';
+
+        // Get Gemini-generated catalog
+        const catalog = await getCachedCatalog(
+            'electronics and accessories e-commerce',
+            forceRefresh
+        );
+
         const tfInfo = getTensorFlowInfo();
 
         return NextResponse.json({
-            products: DEMO_PRODUCTS,
-            totalProducts: DEMO_PRODUCTS.length,
-            categories: [...new Set(DEMO_PRODUCTS.map(p => p.category))],
+            products: catalog.products,
+            totalProducts: catalog.products.length,
+            categories: catalog.categories,
+            totalValue: catalog.totalValue,
+            generatedAt: catalog.generatedAt,
+            context: catalog.context,
+            powered: {
+                gemini: true,
+                tensorflow: false
+            },
             tensorFlowBackend: tfInfo.backend,
             tensorFlowReady: tfInfo.ready
         });
     } catch (error) {
         console.error('Products list error:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch products' },
+            { error: 'Failed to fetch products', details: String(error) },
             { status: 500 }
         );
     }
