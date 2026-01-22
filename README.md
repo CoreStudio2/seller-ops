@@ -8,7 +8,7 @@ A real-time war room dashboard for e-commerce operations, powered by **Gemini AI
 
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.4-black)
-![Gemini AI](https://img.shields.io/badge/Gemini-2.0%20Flash-orange)
+![Gemini AI](https://img.shields.io/badge/Gemini-2.5%20Flash-orange)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow.js-4.22.0-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -325,7 +325,7 @@ npm run test:coverage
 | Category | Technology | Version | Purpose |
 |----------|-----------|---------|---------|
 | **Framework** | Next.js | 16.1.4 | App Router, SSR, API Routes |
-| **AI/ML** | Gemini AI | 2.0 Flash | Primary intelligence engine |
+| **AI/ML** | Gemini AI | 2.5 Flash | Primary intelligence engine |
 | **ML Enhancement** | TensorFlow.js | 4.22.0 | Optional similarity scoring |
 | **Real-Time** | Redis (ioredis) | 5.9.2 | Pub/sub, signal processing |
 | **Database** | Turso (LibSQL) | 0.17.0 | Edge SQL, threat storage |
@@ -524,16 +524,6 @@ Ensure these are set:
 - `REDIS_URL` (production Redis instance)
 - `TURSO_DATABASE_URL` (production Turso DB)
 - `TURSO_AUTH_TOKEN` (production auth)
-
----
-
-## 📚 Documentation
-
-- **[ARCHITECTURE_UPDATE.md](ARCHITECTURE_UPDATE.md)** - Detailed architecture documentation
-- **[ARCHITECTURE_DIAGRAM.md](ARCHITECTURE_DIAGRAM.md)** - Visual architecture overview
-- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - Recent changes summary
-- **[TECH_STACK_STATUS.md](TECH_STACK_STATUS.md)** - Tech stack verification
-- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** - Project completion status
 
 ---
 

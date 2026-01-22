@@ -40,4 +40,17 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# vercel
 .vercel
+
+# development artifacts
+.agent/
+gemini_docs/
+voiceover/
+VIDEO_SCRIPT.md
+scripts/generate_voiceover.py
+
+# local database
+local.db
+local.db-shm
+local.db-wal
