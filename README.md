@@ -14,14 +14,6 @@ A real-time war room dashboard for e-commerce operations, powered by **Gemini AI
 
 ---
 
-## 🎬 Demo Video
-
-🎥 **[Watch 2-Minute Demo Video](#)** - See SellerOps in action!
-
-> *Showcasing real-time threat detection, Gemini AI causal attribution, intelligent recommendations, and Beast Mode simulation.*
-
----
-
 ## 🌟 Features
 
 ### 🧠 **Gemini AI-Powered Recommendations** (PRIMARY)
@@ -638,19 +630,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 [⭐ Star on GitHub](https://github.com/priyanshuchawda/seller-ops) | [🎬 Demo Video](#) | [🐛 Report Bug](https://github.com/priyanshuchawda/seller-ops/issues) | [💡 Request Feature](https://github.com/priyanshuchawda/seller-ops/issues)
 
 ---
-
-## 🏆 Hackathon Submission
-
-**Project:** SellerOps - AI-Powered Commerce Intelligence  
-**Stack:** Gemini AI 2.0 Flash + TensorFlow.js + Next.js 16 + Redis + Turso  
-**Deployment:** Production-ready on Vercel  
-**Status:** ✅ Complete & Live
-
-### Judging Criteria Highlights
-
-✅ **Complexity & Technicality (30%)**: 5 cutting-edge technologies integrated seamlessly  
-✅ **Impact & Utility (30%)**: Solves real revenue loss for e-commerce sellers  
-✅ **Design & UI/UX (20%)**: War Room command center aesthetic  
-✅ **"RAHH" Factor (20%)**: Beast Mode simulation with game theory
-
-</div>
