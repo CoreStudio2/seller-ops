@@ -4,10 +4,21 @@
 
 A real-time war room dashboard for e-commerce operations, powered by **Gemini AI** and **TensorFlow.js**, designed to detect threats, attribute revenue changes, and provide intelligent product recommendations.
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-sellerops--dashboard.vercel.app-blue?style=for-the-badge)](https://sellerops-dashboard.vercel.app/)
+
 ![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.4-black)
 ![Gemini AI](https://img.shields.io/badge/Gemini-2.0%20Flash-orange)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow.js-4.22.0-blue)
+![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## 🎬 Demo Video
+
+🎥 **[Watch 2-Minute Demo Video](#)** - See SellerOps in action!
+
+> *Showcasing real-time threat detection, Gemini AI causal attribution, intelligent recommendations, and Beast Mode simulation.*
 
 ---
 
@@ -87,15 +98,24 @@ A real-time war room dashboard for e-commerce operations, powered by **Gemini AI
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### 🌐 Try the Live Demo
+**[https://sellerops-dashboard.vercel.app/](https://sellerops-dashboard.vercel.app/)**
+
+Experience the full SellerOps War Room without any setup!
+
+---
+
+### 💻 Run Locally
+
+#### Prerequisites
 - **Node.js** 20+ and npm
 - **Docker** (for Redis)
 - **Gemini API Key** ([Get one here](https://ai.google.dev/))
 
-### 1. Clone & Install
+#### 1. Clone & Install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/priyanshuchawda/seller-ops.git
 cd seller-ops
 npm install
 ```
@@ -463,6 +483,9 @@ The War Room theme is defined in `src/app/globals.css`:
 
 ## 🚢 Deployment
 
+### ✅ Production Deployment
+**Live at:** [https://sellerops-dashboard.vercel.app/](https://sellerops-dashboard.vercel.app/)
+
 ### Vercel (Recommended)
 
 ```bash
@@ -474,6 +497,12 @@ vercel
 
 # Set environment variables in Vercel dashboard
 ```
+
+**Environment Variables Required:**
+- `GEMINI_API_KEY` ✅
+- `REDIS_URL` ✅  
+- `TURSO_DATABASE_URL` ✅
+- `TURSO_AUTH_TOKEN` ✅
 
 ### Docker
 
@@ -586,9 +615,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/seller-ops/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/seller-ops/discussions)
-- **Email**: your-email@example.com
+- **Issues**: [GitHub Issues](https://github.com/priyanshuchawda/seller-ops/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/priyanshuchawda/seller-ops/discussions)
+- **Live Demo**: [https://sellerops-dashboard.vercel.app/](https://sellerops-dashboard.vercel.app/)
 
 ---
 
@@ -614,6 +643,24 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Built with ❤️ using Gemini AI, TensorFlow.js, and Next.js**
 
-[⭐ Star on GitHub](https://github.com/yourusername/seller-ops) | [📖 Documentation](docs/) | [🐛 Report Bug](issues/) | [💡 Request Feature](issues/)
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Now-blue?style=for-the-badge)](https://sellerops-dashboard.vercel.app/)
+
+[⭐ Star on GitHub](https://github.com/priyanshuchawda/seller-ops) | [🎬 Demo Video](#) | [🐛 Report Bug](https://github.com/priyanshuchawda/seller-ops/issues) | [💡 Request Feature](https://github.com/priyanshuchawda/seller-ops/issues)
+
+---
+
+## 🏆 Hackathon Submission
+
+**Project:** SellerOps - AI-Powered Commerce Intelligence  
+**Stack:** Gemini AI 2.0 Flash + TensorFlow.js + Next.js 16 + Redis + Turso  
+**Deployment:** Production-ready on Vercel  
+**Status:** ✅ Complete & Live
+
+### Judging Criteria Highlights
+
+✅ **Complexity & Technicality (30%)**: 5 cutting-edge technologies integrated seamlessly  
+✅ **Impact & Utility (30%)**: Solves real revenue loss for e-commerce sellers  
+✅ **Design & UI/UX (20%)**: War Room command center aesthetic  
+✅ **"RAHH" Factor (20%)**: Beast Mode simulation with game theory
 
 </div>
